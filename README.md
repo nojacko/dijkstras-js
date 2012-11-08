@@ -2,9 +2,6 @@
 
 Javascript implementation of Dijkstra's algorithm 
 
-http://en.wikipedia.org/wiki/Dijkstra's_algorithm
-
-
 ## Sample Usage
 
 	var d = new Dijkstras();
@@ -16,4 +13,10 @@ http://en.wikipedia.org/wiki/Dijkstra's_algorithm
 			['D', [['C', 10], ['B', 20]] ]
 		]
 	);
-var path = d.getPath('A', 'D');
+	var path = d.getPath('A', 'D');
+	
+## Resources
+http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+
+## Fork!
+Please fork and improve!
