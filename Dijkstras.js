@@ -36,8 +36,12 @@ var Dijkstras = function () {
 	this.setGraph = function (graph) 
 	{
 		// Error check graph
-		if (typeof graph !== 'object' || graph.length < 1) {
-			throw "graph isn't an array, or is empty";
+		if (typeof graph !== 'object') {
+			throw "graph isn't an object (" + typeof graph + ")";		
+		}
+
+		if (graph.length < 1) {
+			throw "graph is empty";
 		}		
 		for (var index in graph) {			
 			// Error check each node
