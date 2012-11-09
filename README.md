@@ -1,4 +1,4 @@
-# dijkstra-js
+# dijkstras-js
 
 Javascript implementation of Dijkstra's algorithm 
 
