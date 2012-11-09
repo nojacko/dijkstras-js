@@ -1,6 +1,8 @@
 /**
 * Javascript implementation of Dijkstra's algorithm
-* http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+* Based on: http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+* Author: James Jackson (www.jamesdavidjackson.com)
+* Source: http://github.com/nojacko/dijkstras-js/tree/
 *
 * Useage: 
 *	var d = new Dijkstras();
@@ -16,6 +18,9 @@
 *
 */
 
+/**
+* @class Dijkstras
+**/
 var Dijkstras = function () {
 	this.graph = [];
 	
