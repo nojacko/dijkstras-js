@@ -22,7 +22,10 @@
 * @class Dijkstras
 **/
 var Dijkstras = function () {
-	this.graph = [];
+	this.graph = [];		
+	this.queue;	
+	this.distance = [];
+	this.previous = []
 	
 	/**
 	* Creates a graph from array. 
@@ -89,50 +92,173 @@ var Dijkstras = function () {
 			throw "target " + target + " doesn't exist";
 		}
 		
-		var queue = [];	
-		var distance = [];
-		var previous = [];
-			
+		// Already at target
+		if (source === target) {
+			return [];
+		}
+
 		// Reset all previous values
+		this.queue = new DijkstrasQueue();
 		for (var name in this.graph) {	
-			distance[name] = Infinity;
-			previous[name] = null;
-			queue[queue.length] = name;
+			this.distance[name] = Infinity;
+			this.previous[name] = null;
+			this.queue.update(name, Infinity);
 		}
 		
 		// Set up
-		distance[source] = 0;		
+		this.distance[source] = 0;	
+		this.queue.update(source, 0);	
 		
-		// Loop all nodes
-		while (queue.length > 0) {
-			// Keep Queue in order
-			queue.sort(function(a, b) { return distance[a] > distance[b]; })
-			
-			var u = queue.shift();
+		// Loop all nodes		
+		while (this.queue.count > 0) {
+			var u = this.queue.shift().node;
 			
 			// Reached taget!
 			if (u === target) {
 				var path = [];
-				while (previous[u] !== null) {
+				while (this.previous[u] !== null) {
 					path.unshift(u);
-					u = previous[u];
+					u = this.previous[u];
 				}
 				return path;
 			}
 			
-			if (distance[u] == Infinity) {
-				break; // all remaining vertices are inaccessible from source
+			// all remaining vertices are inaccessible from source
+			if (this.distance[u] == Infinity) {
+				break; 
 			}
 			
 			for (var neighbour in this.graph[u]) {
-				var alt = distance[u] + this.graph[u][neighbour];
-				if (alt < distance[neighbour]) {
-					distance[neighbour] = alt;
-					previous[neighbour] = u;
+				var alt = this.distance[u] + this.graph[u][neighbour];
+				if (alt < this.distance[neighbour]) {
+					this.distance[neighbour] = alt;
+					this.previous[neighbour] = u;
+					this.queue.update(neighbour, alt);
 				}
-			}	
+			}
 		}
 		
 		return [];		
 	}
+}
+
+
+
+
+/**
+* @class DijkstrasQueue
+**/
+var DijkstrasQueue = function () {
+	this.queue = {};
+	this.count = 0;
+	this.first = null;
+	
+	this.shift = function () 
+	{
+		return this.remove(this.first);
+	}
+	
+	this.remove = function (node) 
+	{
+		if (typeof this.queue[node] === 'undefined') {
+			return null;
+		}
+		
+		var element = this.queue[node];
+		delete this.queue[node];
+		this.count--;
+		
+		// Removing the first, we should update first
+		if (element.prev == null) {
+			this.first = null; 
+			if (typeof this.queue[element.next] !== 'undefined') {
+				this.first = this.queue[element.next].node;
+			}
+		}		
+		
+		if (typeof this.queue[element.prev] !== 'undefined') {
+			this.queue[element.prev].next = element.next;
+		}
+		
+		if (typeof this.queue[element.next] !== 'undefined') {
+			this.queue[element.next].prev = element.prev;
+		}
+		
+		return element;		
+	}
+	
+	this.update = function (node, distance) 
+	{
+		var update = false;
+		
+		// Add node
+		var addition = typeof this.queue[node] === 'undefined';
+		
+		// Update if it's new or the distance has changed
+		if (addition || this.queue[node].distance !== distance) {
+			if (addition) { 
+				this.count++;
+			} else {
+				// Temporarily remove 
+				var prev = this.queue[node].prev;
+				if (prev !== null) {
+					this.queue[prev].next = this.queue[node].next;
+				}
+				var next = this.queue[node].next;
+				if (next !== null) {
+					this.queue[next].prev = this.queue[node].prev;
+				}
+			}
+			
+			// Add/update
+			this.queue[node] = { node: node, distance: distance, next: null, prev: null	};
+		} else {
+			return; // No change
+		} 
+		
+		// This is the first node
+		if (this.first === null) {
+			this.first = node;
+			return;
+		}
+		
+		// Order
+		var prev = null;
+		var next = this.first;
+		
+		while (next !== null) {			
+			// Stop when next distance is equal or greater
+			if (this.queue[node].distance <= this.queue[next].distance) {
+			
+				// Nothing before, so it's the first.
+				if (prev == null) {
+					this.first = node;
+				}
+				
+				// has previous, who's next should point to this
+				if (typeof this.queue[prev] !== 'undefined'){
+					this.queue[prev].next = node;
+				}
+				
+				// has next, who's previous should point to this
+				if (typeof this.queue[next] !== 'undefined'){
+					this.queue[next].prev = node;
+				}
+					
+				this.queue[node].prev = prev;
+				this.queue[node].next = next;			
+				return;
+			}
+			prev = next;
+			next = (typeof this.queue[next] === 'undefined') ? null : this.queue[next].next;
+		}
+		
+		// Add at the end 
+		this.queue[node].prev = prev;
+		this.queue[node].next = next;
+		// Point current last to this
+		this.queue[prev].next = node; 			
+	}
+	
+	
 }
