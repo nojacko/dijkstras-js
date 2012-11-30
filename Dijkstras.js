@@ -195,7 +195,7 @@ var DijkstrasQueue = function () {
 		var addition = typeof this.queue[node] === 'undefined';
 		
 		// Update if it's new or the distance has changed
-		if (addition || this.queue[node].distance !== distance) {
+		if (addition || !(this.queue[node].distance == distance)) {
 			if (addition) { 
 				this.count++;
 			} else {
