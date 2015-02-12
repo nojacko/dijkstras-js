@@ -1,6 +1,6 @@
 var generateGraph = function(x, y) {
 
-    var i, j, name, graph = [];
+    var i, j, name, graph = [], totalConnections = 0;
 
     i = 1;
     while (i <= x) {
@@ -71,11 +71,17 @@ var generateGraph = function(x, y) {
 
             graph.push([name, connections]);
 
+            totalConnections += connections.length;
+
             j++;
         }
 
         i++;
     }
+/*
+    console.log('Cells: ' + graph.length);
+    console.log('Connections: ' + totalConnections);
+*/
 
     return graph;
 }
