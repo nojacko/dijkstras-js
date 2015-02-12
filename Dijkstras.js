@@ -98,7 +98,7 @@ var Dijkstras = function () {
 		}
 
 		// Reset all previous values
-		this.queue = new DijkstrasQueue();
+		this.queue = new Queue();
 		for (var name in this.graph) {
 			this.distance[name] = Infinity;
 			this.previous[name] = null;
@@ -140,125 +140,120 @@ var Dijkstras = function () {
 
 		return [];
 	}
-}
 
+    /**
+    * @class Queue
+    **/
+    var Queue = function () {
+    	this.queue = {};
+    	this.count = 0;
+    	this.first = null;
 
+    	this.shift = function ()
+    	{
+    		return this.remove(this.first);
+    	}
 
+    	this.remove = function (node)
+    	{
+    		if (typeof this.queue[node] === 'undefined') {
+    			return null;
+    		}
 
-/**
-* @class DijkstrasQueue
-**/
-var DijkstrasQueue = function () {
-	this.queue = {};
-	this.count = 0;
-	this.first = null;
+    		var element = this.queue[node];
+    		delete this.queue[node];
+    		this.count--;
 
-	this.shift = function ()
-	{
-		return this.remove(this.first);
-	}
+    		// Removing the first, we should update first
+    		if (element.prev == null) {
+    			this.first = null;
+    			if (typeof this.queue[element.next] !== 'undefined') {
+    				this.first = this.queue[element.next].node;
+    			}
+    		}
 
-	this.remove = function (node)
-	{
-		if (typeof this.queue[node] === 'undefined') {
-			return null;
-		}
+    		if (typeof this.queue[element.prev] !== 'undefined') {
+    			this.queue[element.prev].next = element.next;
+    		}
 
-		var element = this.queue[node];
-		delete this.queue[node];
-		this.count--;
+    		if (typeof this.queue[element.next] !== 'undefined') {
+    			this.queue[element.next].prev = element.prev;
+    		}
 
-		// Removing the first, we should update first
-		if (element.prev == null) {
-			this.first = null;
-			if (typeof this.queue[element.next] !== 'undefined') {
-				this.first = this.queue[element.next].node;
-			}
-		}
+    		return element;
+    	}
 
-		if (typeof this.queue[element.prev] !== 'undefined') {
-			this.queue[element.prev].next = element.next;
-		}
+    	this.update = function (node, distance)
+    	{
+    		var update = false;
 
-		if (typeof this.queue[element.next] !== 'undefined') {
-			this.queue[element.next].prev = element.prev;
-		}
+    		// Add node
+    		var addition = typeof this.queue[node] === 'undefined';
 
-		return element;
-	}
+    		// Update if it's new or the distance has changed
+    		if (addition || !(this.queue[node].distance == distance)) {
+    			if (addition) {
+    				this.count++;
+    			} else {
+    				// Temporarily remove
+    				var prev = this.queue[node].prev;
+    				if (prev !== null) {
+    					this.queue[prev].next = this.queue[node].next;
+    				}
+    				var next = this.queue[node].next;
+    				if (next !== null) {
+    					this.queue[next].prev = this.queue[node].prev;
+    				}
+    			}
 
-	this.update = function (node, distance)
-	{
-		var update = false;
+    			// Add/update
+    			this.queue[node] = { node: node, distance: distance, next: null, prev: null	};
+    		} else {
+    			return; // No change
+    		}
 
-		// Add node
-		var addition = typeof this.queue[node] === 'undefined';
+    		// This is the first node
+    		if (this.first === null) {
+    			this.first = node;
+    			return;
+    		}
 
-		// Update if it's new or the distance has changed
-		if (addition || !(this.queue[node].distance == distance)) {
-			if (addition) {
-				this.count++;
-			} else {
-				// Temporarily remove
-				var prev = this.queue[node].prev;
-				if (prev !== null) {
-					this.queue[prev].next = this.queue[node].next;
-				}
-				var next = this.queue[node].next;
-				if (next !== null) {
-					this.queue[next].prev = this.queue[node].prev;
-				}
-			}
+    		// Order
+    		var prev = null;
+    		var next = this.first;
 
-			// Add/update
-			this.queue[node] = { node: node, distance: distance, next: null, prev: null	};
-		} else {
-			return; // No change
-		}
+    		while (next !== null) {
+    			// Stop when next distance is equal or greater
+    			if (this.queue[node].distance <= this.queue[next].distance) {
 
-		// This is the first node
-		if (this.first === null) {
-			this.first = node;
-			return;
-		}
+    				// Nothing before, so it's the first.
+    				if (prev == null) {
+    					this.first = node;
+    				}
 
-		// Order
-		var prev = null;
-		var next = this.first;
+    				// has previous, who's next should point to this
+    				if (typeof this.queue[prev] !== 'undefined'){
+    					this.queue[prev].next = node;
+    				}
 
-		while (next !== null) {
-			// Stop when next distance is equal or greater
-			if (this.queue[node].distance <= this.queue[next].distance) {
+    				// has next, who's previous should point to this
+    				if (typeof this.queue[next] !== 'undefined'){
+    					this.queue[next].prev = node;
+    				}
 
-				// Nothing before, so it's the first.
-				if (prev == null) {
-					this.first = node;
-				}
+    				this.queue[node].prev = prev;
+    				this.queue[node].next = next;
+    				return;
+    			}
+    			prev = next;
+    			next = (typeof this.queue[next] === 'undefined') ? null : this.queue[next].next;
+    		}
 
-				// has previous, who's next should point to this
-				if (typeof this.queue[prev] !== 'undefined'){
-					this.queue[prev].next = node;
-				}
-
-				// has next, who's previous should point to this
-				if (typeof this.queue[next] !== 'undefined'){
-					this.queue[next].prev = node;
-				}
-
-				this.queue[node].prev = prev;
-				this.queue[node].next = next;
-				return;
-			}
-			prev = next;
-			next = (typeof this.queue[next] === 'undefined') ? null : this.queue[next].next;
-		}
-
-		// Add at the end
-		this.queue[node].prev = prev;
-		this.queue[node].next = next;
-		// Point current last to this
-		this.queue[prev].next = node;
-	}
-
-
+    		// Add at the end
+    		this.queue[node].prev = prev;
+    		this.queue[node].next = next;
+    		// Point current last to this
+    		this.queue[prev].next = node;
+    	}
+    }
 }
