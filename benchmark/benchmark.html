@@ -15,11 +15,12 @@
             <h1>Benchmark</h1>
 
             <ul>
-                <li>A 100 x 100 Grid</li>
-                <li>Every cell connected to it's surrounding cells horizontally, vertically, and diagonally.</li>
+                <li>100 x 100 Grid (10,000 cells).</li>
+                <li>Each cell connects to all of it's surrounding cells horizontally, vertically, &amp; diagonally (78,808 connections).</li>
                 <li>Each connection has an equal weight.</li>
-                <li>Routing from 1x1 to 100x100.</li>
-                <li>Routing is run 5 times per verison.</li>
+                <li>Routing from 1,1 to 100,100.</li>
+                <li>Routing is run 5 times per version.</li>
+                <li>The algorithm is the same. The implementation is not.</li>
             </ul>
 
             <p class="text-center">
@@ -38,7 +39,7 @@
                     <tr id="row_1_1_0">
                         <td>
                             <strong>1.1.0</strong><br />
-                            Uses Insertion Sort instead of binary sort.
+                            Insertion Sort.
                         </td>
                         <td class="results"></td>
                         <td class="graph"></td>
@@ -46,7 +47,7 @@
                     <tr id="row_1_0_0">
                         <td>
                             <strong>1.0.0</strong><br />
-                            Initial Version<
+                            Initial Version. Binary Sort.
                         </td>
                         <td class="results"></td>
                         <td class="graph"></td>
@@ -72,7 +73,7 @@
                     '1_1_0',
                     '1_0_0'
                 ],
-                RUNS = 1,
+                RUNS = 5,
                 SIZE_X = 100,
                 SIZE_Y = 100,
                 STATS = [],
