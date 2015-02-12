@@ -106,7 +106,7 @@ var Dijkstras_1_0_0 = function () {
 		// Loop all nodes
 		while (queue.length > 0) {
 			// Keep Queue in order
-			queue.sort(function(a, b) { return distance[a] > distance[b]; })
+			queue.sort(function(a, b) { return distance[a] - distance[b]; })
 
 			var u = queue.shift();
 
