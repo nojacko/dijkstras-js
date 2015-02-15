@@ -199,9 +199,14 @@
                         $('#row_' + v + ' td.graph').html(progress);
 
                         // Difference
-                        var faster = percent == 100
-                            ? ''
-                            : Math.round(100/percent) + 'x faster!' ;
+                        var faster = '';
+                        if (percent != 100) {
+                            var howMuchFaster = (100/percent).toFixed(1);
+
+                            if (howMuchFaster > 1.0) {
+                                faster = howMuchFaster + 'x faster!';
+                            }
+                        }
 
                         $('#row_' + v + ' td.diff').html(faster);
                     }
