@@ -19,29 +19,53 @@
                 <li>Each cell connects to all of it's surrounding cells horizontally, vertically, &amp; diagonally (78,808 connections).</li>
                 <li>Each connection has an equal weight.</li>
                 <li>Routing from 1,1 to 100,100.</li>
-                <li>Routing is run 5 times per version.</li>
                 <li>The algorithm is the same. The implementation is not.</li>
             </ul>
 
-            <p class="text-center">
-                <button id="run" type="button" class="btn btn-block btn-default">Run</button>
-            </p>
+            <form class="form-horizontal">
+                <label class="col-sm-offset-9 col-sm-1 control-label" for="runs">
+                    Runs
+                </label>
+                <div class="col-sm-1">
+                    <select name="runs" class="form-control">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <button id="run" type="button" class="btn btn-default">Run</button>
+                </div>
+            </form>
 
             <table class="table">
                 <thead>
                     <tr>
                         <th>Version</th>
                         <th>Result</th>
+                        <th>Difference</th>
                         <th width="50%">Graph</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <tr id="row_master">
+                        <td>
+                            <strong>master</strong><br />
+                            Current Dev
+                        </td>
+                        <td class="result"></td>
+                        <td class="diff"></td>
+                        <td class="graph"></td>
+                    </tr>
                     <tr id="row_1_1_0">
                         <td>
                             <strong>1.1.0</strong><br />
                             Insertion Sort.
                         </td>
-                        <td class="results"></td>
+                        <td class="result"></td>
+                        <td class="diff"></td>
                         <td class="graph"></td>
                     </tr>
                     <tr id="row_1_0_0">
@@ -49,7 +73,8 @@
                             <strong>1.0.0</strong><br />
                             Initial Version. Binary Sort.
                         </td>
-                        <td class="results"></td>
+                        <td class="result"></td>
+                        <td class="diff"></td>
                         <td class="graph"></td>
                     </tr>
                 </tbody>
@@ -63,6 +88,7 @@
         <script src="graphgenerator.js"></script>
 
         <!-- Versions of Dijkstras JS -->
+        <script src="../Dijkstras.js"></script>
         <script src="versions/v1.0.0.min.js"></script>
         <script src="versions/v1.1.0.min.js"></script>
 
@@ -70,10 +96,11 @@
         <script>
         $(function() {
             var VERSIONS = [
+                    'master',
                     '1_1_0',
                     '1_0_0'
                 ],
-                RUNS = 5,
+                RUNS = 1,
                 SIZE_X = 100,
                 SIZE_Y = 100,
                 STATS = [],
@@ -85,6 +112,13 @@
                 BUTTON.attr('disabled','disabled');
                 BUTTON.text('Running...');
 
+                RUNS = parseInt($('select[name*="runs"]').first().val());
+
+                // Reset All Cells
+                $('td.result').html('');
+                $('td.graph').html('');
+                $('td.diff').html('');
+
                 setTimeout(function() {
                     RunTest(VERSIONS[0], 1);
                 }, 10);
@@ -92,16 +126,16 @@
 
             var RunTest = function (version, next) {
                 var row = $('#row_' + version);
-                var resultCell = $('td.results', row);
+                var resultCell = $('td.result', row);
 
-                resultCell.text('Running...');
+                resultCell.text('Running');
 
                 var startNode = '1x1';
                 var endNode = SIZE_X + 'x' + SIZE_Y;
 
                 // Set Up
                 var graph = generateGraph(SIZE_X, SIZE_Y),
-                    className = 'Dijkstras_' + version,
+                    className = (version == 'master') ? 'Dijkstras' : 'Dijkstras_' + version,
                     classObj = window[className],
                     dijkstras = new classObj();
 
@@ -132,15 +166,15 @@
                         running = true;
                         setTimeout(function() {
                             RunTest(VERSIONS[next], next+1);
-                        }, 10)
+                        }, 100);
                     }
                 }
 
                 // Update button
                 if (!running) {
+                    // Reset Run button
                     BUTTON.removeAttr('disabled');
                     BUTTON.text('Run');
-
 
                     // Do Graphs
                     var max = 0;
@@ -152,8 +186,8 @@
                     }
 
                     for (var v in STATS) {
-                        var percent = (STATS[v] / max * 100).toFixed(2);
-
+                        // Percent of slowest
+                        var percent = (STATS[v] / max * 100).toFixed(0);
                         var progress = '';
                         progress += '<div class="progress">';
                         progress +=     '<div class="progress-bar progress-bar-danger" style="width: ' + percent + '%;">';
@@ -162,11 +196,16 @@
 
                         $('#row_' + v + ' td.graph').html(progress);
 
+                        // Difference
+                        var faster = percent == 100
+                            ? ''
+                            : Math.round(100/percent) + 'x faster!' ;
+
+                        $('#row_' + v + ' td.diff').html(faster);
                     }
                 }
             }
         });
-
 
         </script>
     </body>
