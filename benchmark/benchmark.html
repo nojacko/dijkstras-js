@@ -18,7 +18,7 @@
                 <li>100 x 100 Grid (10,000 cells).</li>
                 <li>Each cell connects to all of it's surrounding cells horizontally, vertically, &amp; diagonally (78,808 connections).</li>
                 <li>Each connection has an equal weight.</li>
-                <li>Routing from 1,1 to 100,100.</li>
+                <li>Routing from 1,1 to 25,25, 50,50, &amp; 100,100.</li>
                 <li>The algorithm is the same. The implementation is not.</li>
             </ul>
 
@@ -44,29 +44,93 @@
         <script>
         $(function() {
             var BUTTON = $('#run');
-                LOG = $('#log');
+                LOG = $('#log'),
+                INSTANCES = [],
+                GRAPH = null;
 
             $('#run').click(function() {
                 // Starting
-                BUTTON.attr('disabled','disabled');
-
-                LOG.html('Benchmarking...<br />');
+                BUTTON.hide();
+                LOG.html('');
 
                 // Graph
-                var graph = generateGraph(100, 100);
+                GRAPH = generateGraph(100, 100);
 
                 // Instances
-                var INSTANCES = [];
                 INSTANCES['Dijkstras'] = new Dijkstras();
                 INSTANCES['Dijkstras_1_1_0'] = new Dijkstras_1_1_0();
                 INSTANCES['Dijkstras_1_0_0'] = new Dijkstras_1_0_0();
 
-                INSTANCES['Dijkstras'].setGraph(graph);
-                INSTANCES['Dijkstras_1_1_0'].setGraph(graph);
-                INSTANCES['Dijkstras_1_0_0'].setGraph(graph);
+                INSTANCES['Dijkstras'].setGraph(GRAPH);
+                INSTANCES['Dijkstras_1_1_0'].setGraph(GRAPH);
+                INSTANCES['Dijkstras_1_0_0'].setGraph(GRAPH);
 
+                TestsOne();
+            });
 
+            TestsOne = function () {
                 var suite = new Benchmark.Suite();
+
+                LOG.append('<strong>Target = 25x25</strong><br />');
+
+                // Tests
+                suite.add('master', function() {
+                    INSTANCES['Dijkstras'].getPath('1x1', '25x25');
+                });
+                suite.add('1.1.0', function() {
+                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '25x25');
+                });
+                suite.add('1.0.0', function() {
+                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '25x25');
+                });
+
+                // Info
+                suite.on('cycle', function(event) {
+                    LOG.append(String(event.target) + '<br />');
+                });
+                suite.on('complete', function() {
+                    LOG.append('Fastest is <strong>' + this.filter('fastest').pluck('name') + '</strong><br /><br />');
+                    TestsTwo();
+                });
+
+                // run async
+                suite.run({ 'async': true });
+            }
+
+            TestsTwo = function () {
+                var suite = new Benchmark.Suite();
+
+                LOG.append('<strong>Target = 50x50</strong><br />');
+
+                // Tests
+                suite.add('master', function() {
+                    INSTANCES['Dijkstras'].getPath('1x1', '50x50');
+                });
+                suite.add('1.1.0', function() {
+                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '50x50');
+                });
+                suite.add('1.0.0', function() {
+                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '50x50');
+                });
+
+                // Info
+                suite.on('cycle', function(event) {
+                    LOG.append(String(event.target) + '<br />');
+                });
+                suite.on('complete', function() {
+                    LOG.append('Fastest is <strong>' + this.filter('fastest').pluck('name') + '</strong><br /><br />');
+                    TestsThree();
+                });
+
+                // run async
+                suite.run({ 'async': true });
+            }
+
+            TestsThree = function () {
+                var suite = new Benchmark.Suite();
+
+                LOG.append('<strong>Target = 100x100</strong><br />');
+
                 // Tests
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '100x100');
@@ -84,7 +148,7 @@
                 });
                 suite.on('complete', function() {
                     // Ending
-                    BUTTON.removeAttr('disabled');
+                    BUTTON.show();
 
                     LOG.append('Fastest is <strong>' + this.filter('fastest').pluck('name') + '</strong><br />');
                     LOG.append('Done.');
@@ -92,7 +156,7 @@
 
                 // run async
                 suite.run({ 'async': true });
-            });
+            }
         });
 
         </script>
