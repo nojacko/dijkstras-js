@@ -54,6 +54,7 @@ var Dijkstras = (function () {
         if (graph.length < 1) {
             throw "graph is empty";
         }
+
         for (var index in graph) {
             // Error check each node
             var node = graph[index];
@@ -101,24 +102,17 @@ var Dijkstras = (function () {
         }
 
         // Reset all previous values
-        this.queue = new Queue();
-        for (var name in this.graph) {
-            this.distance[name] = Infinity;
-            this.previous[name] = null;
-        }
-
-        // Set up
-        this.distance[source] = 0;
-        this.queue.update(source, 0);
+        this.queue = new MinHeap();
+        this.queue.add(source, 0);
+        this.previous[source] = null;
 
         // Loop all nodes
-        while (this.queue.count > 0) {
-            var u = this.queue.shift().node;
-
+        var u = null
+        while (u = this.queue.shift()) {
             // Reached taget!
             if (u === target) {
                 var path = [];
-                while (this.previous[u] !== null) {
+                while (this.previous[u] != null) {
                     path.unshift(u);
                     u = this.previous[u];
                 }
@@ -126,16 +120,18 @@ var Dijkstras = (function () {
             }
 
             // all remaining vertices are inaccessible from source
-            if (this.distance[u] == Infinity) {
-                break;
+            if (this.queue.getDistance(u) == Infinity) {
+                return [];
             }
 
             for (var neighbour in this.graph[u]) {
-                var alt = this.distance[u] + this.graph[u][neighbour];
-                if (alt < this.distance[neighbour]) {
-                    this.distance[neighbour] = alt;
+                var uDistance = this.queue.getDistance(u),
+                    nDistance = this.queue.getDistance(neighbour),
+                    aDistance = uDistance + this.graph[u][neighbour];
+
+                if (aDistance < nDistance) {
+                    this.queue.update(neighbour, aDistance);
                     this.previous[neighbour] = u;
-                    this.queue.update(neighbour, alt);
                 }
             }
         }
@@ -143,112 +139,187 @@ var Dijkstras = (function () {
         return [];
     }
 
-    /**
-    * @class Queue
-    **/
-    var Queue = function () {
-        this.queue = {};
-        this.count = 0;
-        this.first = null;
-    }
 
-    Queue.prototype.insert = function (node, distance)
-    {
-        this.count++;
-        this.queue[node] = { node: node, distance: distance, next: null, prev: null	};
 
-        // This is the first node
-        if (this.first === null) {
-            this.first = node;
-            return;
+    // Fibonacci Heap (min first)
+    var MinHeap = (function() {
+        var MinHeap = function () {
+            this.min = null;
+            this.roots = [];
+            this.nodes = [];
         }
 
-        // Order
-        var prev = null;
-        var next = this.first;
+        MinHeap.prototype.shift = function()
+        {
+            var minNode = this.min;
 
-        while (next) {
-            // Stop when next distance is equal or greater
-            if (this.queue[node].distance <= this.queue[next].distance) {
-
-                // Nothing before, so it's the first.
-                if (prev == null) {
-                    this.first=node;
-                }
-
-                // has previous, who's next should point to this
-                if (typeof this.queue[prev] !== 'undefined'){
-                    this.queue[prev].next = node;
-                }
-
-                // has next, who's previous should point to this
-                if (typeof this.queue[next] !== 'undefined'){
-                    this.queue[next].prev = node;
-                }
-
-                this.queue[node].prev = prev;
-                this.queue[node].next = next;
-                return;
+            if (minNode == null) {
+                return null;
             }
 
-            prev = next;
-            next = (typeof this.queue[next] === 'undefined') ? null : this.queue[next].next;
+            // Remove it
+            this.remove(minNode);
+
+            // No more roots = last item
+            if (this.roots.length < 1) {
+                this.min = null;
+                return minNode
+            }
+
+            // Get mext min
+            var lowestValue = Infinity,
+            length = this.roots.length;
+
+            for (var i = 0; i < length; i++) {
+                var node = this.roots[i],
+                distance = this.getDistance(node);
+
+                if (distance < lowestValue) {
+                    lowestValue = distance;
+                    this.min = node;
+                }
+            }
+
+
+            this.consolidate();
+
+            return minNode;
         }
 
-        // Add at the end
-        this.queue[node].prev = prev;
-        this.queue[node].next = next;
-        // Point current last to this
-        this.queue[prev].next = node;
-    }
+        MinHeap.prototype.consolidate = function()
+        {
+            // Consolidate
+            var depths = [ [], [], [], [], [], [], [] ],
+            maxDepth = depths.length - 1, // 0-index
+            removeFromRoots = [];
 
-    Queue.prototype.update = function (node, distance)
-    {
-        if (typeof this.queue[node] !== 'undefined') {
-            if (this.queue[node].distance == distance) {
-                return;
+            // Populate depths array
+
+            var length = this.roots.length;
+            for (var i = 0; i < length; i++) {
+                var node = this.roots[i],
+                depth = this.nodes[node].depth;
+
+                if (depth < maxDepth) {
+                    depths[depth].push(node);
+                }
             }
 
+            for (var depth = 0; depth <= maxDepth; depth++) {
+                while (depths[depth].length > 1) {
+
+                    var first = depths[depth].shift(),
+                    second = depths[depth].shift(),
+                    newDepth = depth + 1,
+                    pos = -1;
+
+                    if (this.nodes[first].distance < this.nodes[second].distance) {
+                        this.nodes[first].depth = newDepth;
+                        this.nodes[first].children.push(second);
+                        this.nodes[second].parent = first;
+
+                        if (newDepth <= maxDepth) {
+                            depths[newDepth].push(first);
+                        }
+
+                        // Find position in roots where adopted node is
+                        pos = this.roots.indexOf(second);
+
+                    } else {
+                        this.nodes[second].depth = newDepth;
+                        this.nodes[second].children.push(first);
+                        this.nodes[first].parent = second;
+
+                        if (newDepth <= maxDepth) {
+                            depths[newDepth].push(second);
+                        }
+
+                        // Find position in roots where adopted node is
+                        pos = this.roots.indexOf(first);
+                    }
+
+                    // Remove roots that have been made children
+                    if (pos > -1) {
+                        this.roots.splice(pos, 1);
+                    }
+                }
+            }
+        }
+
+        MinHeap.prototype.add = function(node, distance)
+        {
+            // Add the node
+            this.nodes[node] = {
+                node: node,
+                distance: distance,
+                depth: 0,
+                parent: null,
+                children: []
+            };
+
+            // Is it the minimum?
+            if (!this.min || this.nodes[node].distance < this.nodes[this.min].distance) {
+                this.min = node;
+            }
+
+            // Other stuff
+            this.roots.push(node);
+        }
+
+        MinHeap.prototype.update = function(node, distance)
+        {
             this.remove(node);
+            this.add(node, distance);
         }
 
-        this.insert(node, distance);
-    }
+        MinHeap.prototype.remove = function(node)
+        {
+            if (!this.nodes[node]) {
+                return;
+            }
 
-    Queue.prototype.shift = function ()
-    {
-        return this.remove(this.first);
-    }
+            // Move children to be children of the parent
+            if (this.nodes[node].children.length > 0) {
 
-    Queue.prototype.remove = function (node)
-    {
-        if (typeof this.queue[node] === 'undefined') {
-            return null;
-        }
+                var length = this.nodes[node].children.length;
+                for (var i = 0; i < length; i++) {
+                    var child = this.nodes[node].children[i];
+                    this.nodes[child].parent = this.nodes[node].parent;
 
-        var element = this.queue[node];
-        delete this.queue[node];
-        this.count--;
+                    // No parent, then add to roots
+                    if (this.nodes[child].parent == null) {
+                        this.roots.push(child);
+                    }
+                }
+            }
 
-        // Removing the first, we should update first
-        if (element.prev == null) {
-            this.first = null;
-            if (typeof this.queue[element.next] !== 'undefined') {
-                this.first = this.queue[element.next].node;
+            var parent = this.nodes[node].parent;
+
+            // Root, so remove from roots
+            if (parent == null) {
+                var pos = this.roots.indexOf(node);
+                if (pos > -1) {
+                    this.roots.splice(pos, 1);
+                }
+            } else {
+                // Go up the parents and decrease their depth
+                while (parent) {
+                    this.nodes[parent].depth--;
+                    parent = this.nodes[parent].parent
+                }
             }
         }
 
-        if (typeof this.queue[element.prev] !== 'undefined') {
-            this.queue[element.prev].next = element.next;
+        MinHeap.prototype.getDistance = function(node)
+        {
+            if (this.nodes[node]) {
+                return this.nodes[node].distance;
+            }
+            return Infinity;
         }
 
-        if (typeof this.queue[element.next] !== 'undefined') {
-            this.queue[element.next].prev = element.prev;
-        }
-
-        return element;
-    }
-
+        return MinHeap;
+    })();
 
     return Dijkstras;
-})()
+})();
