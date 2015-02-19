@@ -22,70 +22,16 @@
                 <li>The algorithm is the same. The implementation is not.</li>
             </ul>
 
-            <form class="form-horizontal">
-                <label class="col-sm-offset-9 col-sm-1 control-label" for="runs">
-                    Runs
-                </label>
-                <div class="col-sm-1">
-                    <select name="runs" class="form-control">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-                <div class="col-sm-1">
-                    <button id="run" type="button" class="btn btn-default">Run</button>
-                </div>
-            </form>
+            <button id="run" type="button" class="btn btn-block btn-default">Run</button>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Version</th>
-                        <th>Result</th>
-                        <th>Difference</th>
-                        <th width="50%">Graph</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="row_master">
-                        <td>
-                            <strong>master</strong><br />
-                            Current Dev
-                        </td>
-                        <td class="result"></td>
-                        <td class="diff"></td>
-                        <td class="graph"></td>
-                    </tr>
-                    <tr id="row_1_1_0">
-                        <td>
-                            <strong>1.1.0</strong><br />
-                            Insertion Sort.
-                        </td>
-                        <td class="result"></td>
-                        <td class="diff"></td>
-                        <td class="graph"></td>
-                    </tr>
-                    <tr id="row_1_0_0">
-                        <td>
-                            <strong>1.0.0</strong><br />
-                            Initial Version. Binary Sort.
-                        </td>
-                        <td class="result"></td>
-                        <td class="diff"></td>
-                        <td class="graph"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <hr />
 
+            <pre id="log">Ready!</pre>
         </div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/benchmark/1.0.0/benchmark.js"></script>
 
         <script src="graphgenerator.js"></script>
 
@@ -97,121 +43,56 @@
 
         <script>
         $(function() {
-            var VERSIONS = [
-                    'master',
-                    '1_1_0',
-                    '1_0_0'
-                ],
-                RUNS = 1,
-                SIZE_X = 100,
-                SIZE_Y = 100,
-                STATS = [],
-                BUTTON = $('#run'),
-                STATS = [];
+            var BUTTON = $('#run');
+                LOG = $('#log');
 
             $('#run').click(function() {
-
+                // Starting
                 BUTTON.attr('disabled','disabled');
-                BUTTON.text('Running...');
 
-                RUNS = parseInt($('select[name*="runs"]').first().val());
+                LOG.html('Benchmarking...<br />');
 
-                // Reset All Cells
-                $('td.result').html('');
-                $('td.graph').html('');
-                $('td.diff').html('');
+                // Graph
+                var graph = generateGraph(100, 100);
 
-                setTimeout(function() {
-                    RunTest(VERSIONS[0], 1);
-                }, 10);
-            });
+                // Instances
+                var INSTANCES = [];
+                INSTANCES['Dijkstras'] = new Dijkstras();
+                INSTANCES['Dijkstras_1_1_0'] = new Dijkstras_1_1_0();
+                INSTANCES['Dijkstras_1_0_0'] = new Dijkstras_1_0_0();
 
-            var RunTest = function (version, next) {
-                var row = $('#row_' + version);
-                var resultCell = $('td.result', row);
+                INSTANCES['Dijkstras'].setGraph(graph);
+                INSTANCES['Dijkstras_1_1_0'].setGraph(graph);
+                INSTANCES['Dijkstras_1_0_0'].setGraph(graph);
 
-                resultCell.text('Running');
 
-                var startNode = '1x1';
-                var endNode = SIZE_X + 'x' + SIZE_Y;
+                var suite = new Benchmark.Suite();
+                // Tests
+                suite.add('master', function() {
+                    INSTANCES['Dijkstras'].getPath('1x1', '100x100');
+                });
+                suite.add('1.1.0', function() {
+                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '100x100');
+                });
+                suite.add('1.0.0', function() {
+                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '100x100');
+                });
 
-                // Set Up
-                var graph = generateGraph(SIZE_X, SIZE_Y),
-                    className = (version == 'master') ? 'Dijkstras' : 'Dijkstras_' + version,
-                    classObj = window[className],
-                    dijkstras = new classObj();
-
-                dijkstras.setGraph(graph);
-
-                // Run Test X times
-                var i = 0,
-                    overallStart = performance.now();
-
-                while (i < RUNS) {
-                    dijkstras.getPath(startNode, endNode);
-                    i++;
-                }
-
-                var overallEnd = performance.now(),
-                    totalTime = overallEnd - overallStart,
-                    avgTime = totalTime / RUNS,
-                    avgTimeSecs = (avgTime / 1000).toFixed(3);
-
-                STATS[version] = avgTime;
-
-                resultCell.text(avgTimeSecs + 's');
-
-                // Run next test, if there is one
-                var running = false;
-                if (typeof next !== 'undefined') {
-                    if (typeof VERSIONS[next] !== 'undefined') {
-                        running = true;
-                        setTimeout(function() {
-                            RunTest(VERSIONS[next], next+1);
-                        }, 100);
-                    }
-                }
-
-                // Update button
-                if (!running) {
-                    // Reset Run button
+                // Info
+                suite.on('cycle', function(event) {
+                    LOG.append(String(event.target) + '<br />');
+                });
+                suite.on('complete', function() {
+                    // Ending
                     BUTTON.removeAttr('disabled');
-                    BUTTON.text('Run');
 
-                    // Do Graphs
-                    var max = 0;
+                    LOG.append('Fastest is <strong>' + this.filter('fastest').pluck('name') + '</strong><br />');
+                    LOG.append('Done.');
+                });
 
-                    for (var v in STATS) {
-                        if (STATS[v] > max) {
-                            max = STATS[v];
-                        }
-                    }
-
-                    for (var v in STATS) {
-                        // Percent of slowest
-                        var percent = (STATS[v] / max * 100).toFixed(0);
-                        var progress = '';
-                        progress += '<div class="progress">';
-                        progress +=     '<div class="progress-bar progress-bar-danger" style="width: ' + percent + '%;">';
-                        progress +=     '</div>';
-                        progress += '</div>';
-
-                        $('#row_' + v + ' td.graph').html(progress);
-
-                        // Difference
-                        var faster = '';
-                        if (percent != 100) {
-                            var howMuchFaster = (100/percent).toFixed(1);
-
-                            if (howMuchFaster > 1.0) {
-                                faster = howMuchFaster + 'x faster!';
-                            }
-                        }
-
-                        $('#row_' + v + ' td.diff').html(faster);
-                    }
-                }
-            }
+                // run async
+                suite.run({ 'async': true });
+            });
         });
 
         </script>
