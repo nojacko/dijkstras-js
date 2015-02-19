@@ -194,7 +194,6 @@ var Dijkstras = (function () {
             removeFromRoots = [];
 
             // Populate depths array
-
             var length = this.roots.length;
             for (var i = 0; i < length; i++) {
                 var node = this.roots[i],
@@ -209,9 +208,9 @@ var Dijkstras = (function () {
                 while (depths[depth].length > 1) {
 
                     var first = depths[depth].shift(),
-                    second = depths[depth].shift(),
-                    newDepth = depth + 1,
-                    pos = -1;
+                        second = depths[depth].shift(),
+                        newDepth = depth + 1,
+                        pos = -1;
 
                     if (this.nodes[first].distance < this.nodes[second].distance) {
                         this.nodes[first].depth = newDepth;
