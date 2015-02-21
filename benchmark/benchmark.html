@@ -42,6 +42,7 @@
         <script src="versions/v1.2.0.min.js"></script>
         <script src="versions/v1.3.0.min.js"></script>
         <script src="versions/v1.3.1.min.js"></script>
+        <script src="versions/v1.3.2.min.js"></script>
 
 
         <script>
@@ -53,6 +54,7 @@
 
             // Instances
             INSTANCES['Dijkstras'] = new Dijkstras();
+            INSTANCES['Dijkstras_1_3_2'] = new Dijkstras_1_3_2();
             INSTANCES['Dijkstras_1_3_1'] = new Dijkstras_1_3_1();
             INSTANCES['Dijkstras_1_3_0'] = new Dijkstras_1_3_0();
             INSTANCES['Dijkstras_1_2_0'] = new Dijkstras_1_2_0();
@@ -62,6 +64,7 @@
             // Graph
             GRAPH = generateGraph(100, 100);
             INSTANCES['Dijkstras'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_3_2'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_3_1'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_3_0'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_2_0'].setGraph(GRAPH);
@@ -84,6 +87,9 @@
                 // Tests
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '25x25');
+                });
+                suite.add('1.3.2', function() {
+                    INSTANCES['Dijkstras_1_3_2'].getPath('1x1', '25x25');
                 });
                 suite.add('1.3.1', function() {
                     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '25x25');
@@ -125,6 +131,9 @@
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '50x50');
                 });
+                suite.add('1.3.2', function() {
+                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '50x50');
+                });
                 suite.add('1.3.1', function() {
                     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '50x50');
                 });
@@ -164,6 +173,9 @@
                 // Tests
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '100x100');
+                });
+                suite.add('1.3.2', function() {
+                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '100x100');
                 });
                 suite.add('1.3.1', function() {
                     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '100x100');
