@@ -40,6 +40,7 @@
         <script src="versions/v1.0.0.min.js"></script>
         <script src="versions/v1.1.0.min.js"></script>
         <script src="versions/v1.2.0.min.js"></script>
+        <script src="versions/v1.3.0.min.js"></script>
 
 
         <script>
@@ -48,6 +49,21 @@
                 LOG = $('#log'),
                 INSTANCES = [],
                 GRAPH = null;
+
+            // Instances
+            INSTANCES['Dijkstras'] = new Dijkstras();
+            INSTANCES['Dijkstras_1_3_0'] = new Dijkstras_1_3_0();
+            INSTANCES['Dijkstras_1_2_0'] = new Dijkstras_1_2_0();
+            INSTANCES['Dijkstras_1_1_0'] = new Dijkstras_1_1_0();
+            INSTANCES['Dijkstras_1_0_0'] = new Dijkstras_1_0_0();
+
+            // Graph
+            GRAPH = generateGraph(100, 100);
+            INSTANCES['Dijkstras'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_3_0'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_2_0'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_1_0'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_0_0'].setGraph(GRAPH);
 
             $('#run').click(function() {
                 // Starting
@@ -79,6 +95,9 @@
                 // Tests
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '25x25');
+                });
+                suite.add('1.3.0', function() {
+                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '25x25');
                 });
                 suite.add('1.2.0', function() {
                     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '25x25');
@@ -112,6 +131,9 @@
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '50x50');
                 });
+                suite.add('1.3.0', function() {
+                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '50x50');
+                });
                 suite.add('1.2.0', function() {
                     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '50x50');
                 });
@@ -143,6 +165,9 @@
                 // Tests
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '100x100');
+                });
+                suite.add('1.3.0', function() {
+                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '100x100');
                 });
                 suite.add('1.2.0', function() {
                     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '100x100');

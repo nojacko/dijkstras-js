@@ -309,17 +309,12 @@ var Dijkstras = (function () {
                 var nextParent = nodeObj.parent,
                     lastParent = null;
 
-                var i = 0;
                 while (nextParent) {
                     lastParent = nextParent;
 
                     // Reduce depth, get next parent
                     this.nodes[nextParent].depth--;
                     nextParent = this.nodes[nextParent].parent;
-
-                    if (i++ > 10) {
-                        throw "";
-                    }
                 }
 
                 // Add last parent to depth cache.
