@@ -165,18 +165,20 @@ var Dijkstras = (function () {
             this.remove(minNode);
 
             // Consolidate
-            this.consolidate();
+            if (this.roots.length > 100) {
+                this.consolidate();
+            }
 
             // Get next min
-            var lowestValue = Infinity,
+            var lowestDistance = Infinity,
                 length = this.roots.length;
 
             for (var i = 0; i < length; i++) {
                 var node = this.roots[i],
                     distance = this.getDistance(node);
 
-                if (distance < lowestValue) {
-                    lowestValue = distance;
+                if (distance < lowestDistance) {
+                    lowestDistance = distance;
                     this.min = node;
                 }
             }
