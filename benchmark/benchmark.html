@@ -41,6 +41,7 @@
         <script src="versions/v1.1.0.min.js"></script>
         <script src="versions/v1.2.0.min.js"></script>
         <script src="versions/v1.3.0.min.js"></script>
+        <script src="versions/v1.3.1.min.js"></script>
 
 
         <script>
@@ -52,7 +53,7 @@
 
             // Instances
             INSTANCES['Dijkstras'] = new Dijkstras();
-            INSTANCES['Dijkstras_1_3_1'] = new Dijkstras_1_3_0();
+            INSTANCES['Dijkstras_1_3_1'] = new Dijkstras_1_3_1();
             INSTANCES['Dijkstras_1_3_0'] = new Dijkstras_1_3_0();
             INSTANCES['Dijkstras_1_2_0'] = new Dijkstras_1_2_0();
             INSTANCES['Dijkstras_1_1_0'] = new Dijkstras_1_1_0();
@@ -96,9 +97,11 @@
                 suite.add('1.1.0', function() {
                     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '25x25');
                 });
+/*
                 suite.add('1.0.0', function() {
                     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '25x25');
                 });
+*/
 
                 // Info
                 suite.on('cycle', function(event) {
@@ -134,9 +137,11 @@
                 suite.add('1.1.0', function() {
                     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '50x50');
                 });
+/*
                 suite.add('1.0.0', function() {
                     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '50x50');
                 });
+*/
 
                 // Info
                 suite.on('cycle', function(event) {
@@ -172,9 +177,11 @@
                 suite.add('1.1.0', function() {
                     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '100x100');
                 });
+/*
                 suite.add('1.0.0', function() {
                     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '100x100');
                 });
+*/
 
                 // Info
                 suite.on('cycle', function(event) {
