@@ -147,8 +147,6 @@ var Dijkstras = (function () {
             this.min = null;
             this.roots = [];
             this.nodes = [];
-            this.depthCache = [ [], [], [], [], [], [], [] ];
-            this.depthMax = this.depthCache.length - 1; // 0-index
         }
 
         MinHeap.prototype.shift = function()
@@ -189,13 +187,27 @@ var Dijkstras = (function () {
         MinHeap.prototype.consolidate = function()
         {
             // Consolidate
-            var removeFromRoots = [];
+            var depths = [ [], [], [], [], [], [], [] ],
+                maxDepth = depths.length - 1, // 0-index
+                removeFromRoots = [];
 
-            for (var depth = 0; depth <= this.depthMax; depth++) {
-                while (this.depthCache[depth].length > 1) {
+            // Populate depths array
+            var length = this.roots.length;
+            for (var i = 0; i < length; i++) {
+                var node = this.roots[i],
+                depth = this.nodes[node].depth;
 
-                    var first = this.depthCache[depth].shift(),
-                        second = this.depthCache[depth].shift(),
+                if (depth < maxDepth) {
+                    depths[depth].push(node);
+                }
+            }
+
+            // Consolidate
+            for (var depth = 0; depth <= maxDepth; depth++) {
+                while (depths[depth].length > 1) {
+
+                    var first = depths[depth].shift(),
+                        second = depths[depth].shift(),
                         newDepth = depth + 1,
                         pos = -1;
 
@@ -204,8 +216,8 @@ var Dijkstras = (function () {
                         this.nodes[first].children.push(second);
                         this.nodes[second].parent = first;
 
-                        if (newDepth <= this.depthMax) {
-                            this.depthCache[newDepth].push(first);
+                        if (newDepth <= maxDepth) {
+                            depths[newDepth].push(first);
                         }
 
                         // Find position in roots where adopted node is
@@ -216,8 +228,8 @@ var Dijkstras = (function () {
                         this.nodes[second].children.push(first);
                         this.nodes[first].parent = second;
 
-                        if (newDepth <= this.depthMax) {
-                            this.depthCache[newDepth].push(second);
+                        if (newDepth <= maxDepth) {
+                            depths[newDepth].push(second);
                         }
 
                         // Find position in roots where adopted node is
@@ -244,13 +256,12 @@ var Dijkstras = (function () {
             };
 
             // Is it the minimum?
-            if (!this.min || this.nodes[node].distance < this.nodes[this.min].distance) {
+            if (!this.min || distance < this.nodes[this.min].distance) {
                 this.min = node;
             }
 
-            // Root and Depth
+            // Other stuff
             this.roots.push(node);
-            this.depthCache[0].push(node);
         }
 
         MinHeap.prototype.update = function(node, distance)
@@ -265,65 +276,33 @@ var Dijkstras = (function () {
                 return;
             }
 
-            var nodeObj = this.nodes[node];
-
-            // Remove self from depths cache
-            if (nodeObj.parent == null) {
-                var depth = nodeObj.depth;
-
-                if (depth <= this.depthMax) {
-                    var pos = this.depthCache[depth].indexOf(node);
-                    if (pos > -1) {
-                        this.depthCache[depth].splice(pos, 1);
-                    }
-                }
-            }
-
             // Move children to be children of the parent
-            var numOfChildren = nodeObj.children.length;
-            if (numOfChildren > 0) {
-                for (var i = 0; i < numOfChildren; i++) {
-                    var child = nodeObj.children[i];
-                    this.nodes[child].parent = nodeObj.parent;
+            var numChildren = this.nodes[node].children.length;
+            if (numChildren > 0) {
+                for (var i = 0; i < numChildren; i++) {
+                    var child = this.nodes[node].children[i];
+                    this.nodes[child].parent = this.nodes[node].parent;
 
                     // No parent, then add to roots
-                    if (nodeObj.parent == null) {
+                    if (this.nodes[child].parent == null) {
                         this.roots.push(child);
-                    }
-
-                    // Add to depth cache.
-                    // - Wouldn't be in depth as it's wasn't root
-                    var depth = this.nodes[child].depth;
-                    if (depth <= this.depthMax) {
-                        this.depthCache[depth].push(child);
                     }
                 }
             }
 
-            // Node was a root element, remove it
-            if (nodeObj.parent == null) {
+            var parent = this.nodes[node].parent;
+
+            // Root, so remove from roots
+            if (parent == null) {
                 var pos = this.roots.indexOf(node);
                 if (pos > -1) {
                     this.roots.splice(pos, 1);
                 }
             } else {
                 // Go up the parents and decrease their depth
-                var nextParent = nodeObj.parent,
-                    lastParent = null;
-
-                while (nextParent) {
-                    lastParent = nextParent;
-
-                    // Reduce depth, get next parent
-                    this.nodes[nextParent].depth--;
-                    nextParent = this.nodes[nextParent].parent;
-                }
-
-                // Add last parent to depth cache.
-                // - Wouldn't be in depth as it's wasn't root
-                var depth = this.nodes[lastParent].depth;
-                if (depth <= this.depthMax) {
-                    this.depthCache[depth].push(lastParent);
+                while (parent) {
+                    this.nodes[parent].depth--;
+                    parent = this.nodes[parent].parent
                 }
             }
         }
