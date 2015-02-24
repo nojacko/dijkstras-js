@@ -124,9 +124,9 @@ var Dijkstras = (function () {
                 return [];
             }
 
+            var uDistance = this.queue.getDistance(u)
             for (var neighbour in this.graph[u]) {
-                var uDistance = this.queue.getDistance(u),
-                    nDistance = this.queue.getDistance(neighbour),
+                var nDistance = this.queue.getDistance(neighbour),
                     aDistance = uDistance + this.graph[u][neighbour];
 
                 if (aDistance < nDistance) {
