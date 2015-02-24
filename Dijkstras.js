@@ -163,7 +163,7 @@ var Dijkstras = (function () {
             this.remove(minNode);
 
             // Consolidate
-            if (this.roots.length > 100) {
+            if (this.roots.length > 50) {
                 this.consolidate();
             }
 
