@@ -43,6 +43,7 @@
         <script src="versions/v1.3.0.min.js"></script>
         <script src="versions/v1.3.1.min.js"></script>
         <script src="versions/v1.3.2.min.js"></script>
+        <script src="versions/v1.3.3.min.js"></script>
 
 
         <script>
@@ -54,6 +55,7 @@
 
             // Instances
             INSTANCES['Dijkstras'] = new Dijkstras();
+            INSTANCES['Dijkstras_1_3_3'] = new Dijkstras_1_3_3();
             INSTANCES['Dijkstras_1_3_2'] = new Dijkstras_1_3_2();
             INSTANCES['Dijkstras_1_3_1'] = new Dijkstras_1_3_1();
             INSTANCES['Dijkstras_1_3_0'] = new Dijkstras_1_3_0();
@@ -64,6 +66,7 @@
             // Graph
             GRAPH = generateGraph(100, 100);
             INSTANCES['Dijkstras'].setGraph(GRAPH);
+            INSTANCES['Dijkstras_1_3_3'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_3_2'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_3_1'].setGraph(GRAPH);
             INSTANCES['Dijkstras_1_3_0'].setGraph(GRAPH);
@@ -88,26 +91,27 @@
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '25x25');
                 });
+                suite.add('1.3.3', function() {
+                    INSTANCES['Dijkstras_1_3_3'].getPath('1x1', '25x25');
+                });
                 suite.add('1.3.2', function() {
                     INSTANCES['Dijkstras_1_3_2'].getPath('1x1', '25x25');
                 });
-                suite.add('1.3.1', function() {
-                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '25x25');
-                });
-                suite.add('1.3.0', function() {
-                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '25x25');
-                });
-                suite.add('1.2.0', function() {
-                    INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '25x25');
-                });
-                suite.add('1.1.0', function() {
-                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '25x25');
-                });
-/*
-                suite.add('1.0.0', function() {
-                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '25x25');
-                });
-*/
+                // suite.add('1.3.1', function() {
+                //     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '25x25');
+                // });
+                // suite.add('1.3.0', function() {
+                //     INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '25x25');
+                // });
+                // suite.add('1.2.0', function() {
+                //     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '25x25');
+                // });
+                // suite.add('1.1.0', function() {
+                //     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '25x25');
+                // });
+                // suite.add('1.0.0', function() {
+                //     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '25x25');
+                // });
 
                 // Info
                 suite.on('cycle', function(event) {
@@ -131,26 +135,27 @@
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '50x50');
                 });
+                suite.add('1.3.3', function() {
+                    INSTANCES['Dijkstras_1_3_3'].getPath('1x1', '50x50');
+                });
                 suite.add('1.3.2', function() {
-                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '50x50');
+                    INSTANCES['Dijkstras_1_3_2'].getPath('1x1', '50x50');
                 });
-                suite.add('1.3.1', function() {
-                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '50x50');
-                });
-                suite.add('1.3.0', function() {
-                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '50x50');
-                });
-                suite.add('1.2.0', function() {
-                    INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '50x50');
-                });
-                suite.add('1.1.0', function() {
-                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '50x50');
-                });
-/*
-                suite.add('1.0.0', function() {
-                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '50x50');
-                });
-*/
+                // suite.add('1.3.1', function() {
+                //     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '50x50');
+                // });
+                // suite.add('1.3.0', function() {
+                //     INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '50x50');
+                // });
+                // suite.add('1.2.0', function() {
+                //     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '50x50');
+                // });
+                // suite.add('1.1.0', function() {
+                //     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '50x50');
+                // });
+                // suite.add('1.0.0', function() {
+                //     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '50x50');
+                // });
 
                 // Info
                 suite.on('cycle', function(event) {
@@ -174,26 +179,27 @@
                 suite.add('master', function() {
                     INSTANCES['Dijkstras'].getPath('1x1', '100x100');
                 });
+                suite.add('1.3.3', function() {
+                    INSTANCES['Dijkstras_1_3_3'].getPath('1x1', '100x100');
+                });
                 suite.add('1.3.2', function() {
-                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '100x100');
+                    INSTANCES['Dijkstras_1_3_2'].getPath('1x1', '100x100');
                 });
-                suite.add('1.3.1', function() {
-                    INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '100x100');
-                });
-                suite.add('1.3.0', function() {
-                    INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '100x100');
-                });
-                suite.add('1.2.0', function() {
-                    INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '100x100');
-                });
-                suite.add('1.1.0', function() {
-                    INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '100x100');
-                });
-/*
-                suite.add('1.0.0', function() {
-                    INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '100x100');
-                });
-*/
+                // suite.add('1.3.1', function() {
+                //     INSTANCES['Dijkstras_1_3_1'].getPath('1x1', '100x100');
+                // });
+                // suite.add('1.3.0', function() {
+                //     INSTANCES['Dijkstras_1_3_0'].getPath('1x1', '100x100');
+                // });
+                // suite.add('1.2.0', function() {
+                //     INSTANCES['Dijkstras_1_2_0'].getPath('1x1', '100x100');
+                // });
+                // suite.add('1.1.0', function() {
+                //     INSTANCES['Dijkstras_1_1_0'].getPath('1x1', '100x100');
+                // });
+                // suite.add('1.0.0', function() {
+                //     INSTANCES['Dijkstras_1_0_0'].getPath('1x1', '100x100');
+                // });
 
                 // Info
                 suite.on('cycle', function(event) {
